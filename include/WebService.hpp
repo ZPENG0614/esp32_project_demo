@@ -53,4 +53,10 @@ void web_callback_func() {
     server.send(200, "text/html", html);  // 发送响应内容
 }
 
+//在这里创建一个网页的线程，并且执行相应的函数
+HXC::thread<void> web_thread([](){
+    esp32_ap_setup();//wifi创建初始化
+    esp32_web_create();//创建网页
+});
+
 #endif
