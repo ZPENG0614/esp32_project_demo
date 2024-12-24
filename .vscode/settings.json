@@ -16,5 +16,10 @@
             "command": "extension.execute",
             "priority": 4
         }
-    ]
+    ],
+    "files.associations": {
+        "functional": "cpp",
+        "map": "cpp",
+        "list": "cpp"
+    }
 }

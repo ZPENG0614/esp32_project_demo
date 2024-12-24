@@ -1,18 +1,19 @@
 #include <Arduino.h>
+#include <ESPNOW.hpp>
+#include <HXCthread.hpp>
 
-// put function declarations here:
-int myFunction(int, int);
+
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  esp_now_setup();//初始化espnow通信
+  Serial.begin(115200);//初始化串口通信
+
+
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+
+
+
 }
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
-}
