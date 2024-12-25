@@ -1,3 +1,5 @@
+/*这是一个esp32用于创建网页的例程，这里以宿舍门锁系统为例，后面可以移植到其他的例程当中，后续会更新其他的功能*/
+
 #ifndef Web_Service_hpp
 #define Web_Service_hpp
 #include <Arduino.h>
@@ -7,6 +9,7 @@
 void esp32_ap_setup();   // 创建WiFi并打印设备的MAC地址
 void esp32_web_create(); // 创建Web服务，这里用门锁系统为例
 void web_callback_func();    // 处理按钮点击的回调函数
+void esp32_connect_wifi();  //esp32设备作为sta，用于连接其他的WiFi
 
 // WiFi配置
 const char* ssid = "esp32";  // 自定义WiFi名称
@@ -24,7 +27,7 @@ void esp32_ap_setup(){
 }
 
 void esp32_web_create(){
-    server.on("/", [](){
+    server.on("/", [](){//这里用来显示门锁系统的主页
         String html = "<html><head><meta charset='UTF-8'></head><body style='text-align:center'>";
         html += "<h1 style='font-size:50px;'>欢迎来到重庆邮电大学26507的智能门锁系统!</h1>";
         html += "<p style='font-size:40px;'>点击下面的按钮即可开门</p>";
@@ -45,12 +48,21 @@ void web_callback_func() {
     // 在这里可以添加开门控制的代码，比如控制继电器或其他硬件
     Serial.println("Door is opened!");  // 这里只是打印信息，实际可以控制硬件
 
-    // 响应客户端的请求
+    // 响应客户端的请求，点击开门之后显示的另一个画面
     String html = "<html><head><meta charset='UTF-8'></head><body style='text-align:center'>";
     html += "<h1 style='font-size:50px;'>门已打开！</h1>";
-    html += "<a href='/' style='font-size:40px;'>返回主页</a>";
+    html += "<a href='/' style='font-size:40px;'>返回主页</a>";//用于返回主页
     html += "</body></html>";
     server.send(200, "text/html", html);  // 发送响应内容
+}
+
+void esp32_connect_wifi(){
+    WiFi.begin(ssid,password);
+    while (WiFi.status()!=WL_CONNECTED)
+    {
+        delay(500);
+        Serial.print(".");
+    }
 }
 
 //在这里创建一个网页的线程，并且执行相应的函数
