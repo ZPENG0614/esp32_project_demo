@@ -1,9 +1,93 @@
-#ifndef task_hpp
-#define task_hpp
+/*
+ * @LastEditors: qingmeijiupiao
+ * @Description: freeRTOS任务
+ * @Author: qingmeijiupiao
+ * @Date: 2024-11-07 22:55:05
+ */
 
-#include <ESPNOW.hpp>
-#include <class.hpp>
-#include <objects.hpp>
+#ifndef TASKS_HPP
+#define TASKS_HPP
+#include "objects.hpp"
+#include "HXCthread.hpp"
+
+extern int current_id = 0;//初始矩形框的ID，初始化显示位置(extern关键字声明全局变量)
+
+//轮询按键
+HXC::thread<void> state_read_loop([](){
+    /*初始化*/
+    R1.setup();
+    R2.setup();
+    L1.setup();
+    L2.setup();
+    leftK.setup();
+    rightK.setup();
+    ShoulderLU.setup();
+    ShoulderLD.setup();
+    ShoulderRU.setup();
+    ShoulderRD.setup();
+    LUButton.setup();
+    LDButton.setup();
+    LLButton.setup();
+    LRButton.setup();
+    RUButton.setup();
+    RDButton.setup();
+    RLButton.setup();
+    RRButton.setup();
+    /*轮询*/
+    while(1){
+        R1.callback();
+        R2.callback();
+        L1.callback();
+        L2.callback();
+        leftK.callback();
+        rightK.callback();
+        ShoulderLU.callback();
+        ShoulderLD.callback();
+        ShoulderRU.callback();
+        ShoulderRD.callback();
+        LUButton.callback();
+        LDButton.callback();
+        LLButton.callback();
+        LRButton.callback();
+        RUButton.callback();
+        RDButton.callback();
+        RLButton.callback();
+        RRButton.callback();
+        delay(1);//延时控制频率
+    }
+});
+
+
+//轮询摇杆
+HXC::thread<void> rocker_read_loop([](){
+    Rocker::setup();//初始化
+    leftjoy.calibration_center();//校准中点
+    rightjoy.calibration_center();
+    /*轮询*/
+    while(1){
+        leftjoy.callback();
+        rightjoy.callback();
+        delay(4);//延时控制频率，ads1115为250SPS
+    }
+});
+
+float battery_voltage=0;
+
+//读取电池电压线程
+HXC::thread<void> battery_read_loop([](){
+    constexpr int read_frenquency=5;//读取频率
+    while(1){
+        float temp=0;
+        for(int i=0;i<10;i++){//平滑滤波
+            temp+=0.001*analogReadMilliVolts(10)*2;
+            delay(10);
+        }
+        battery_voltage=temp/10;
+        delay(1000/read_frenquency);
+    }
+});
+
+
 
 //遥控数据发送
 //发送的数据类型
@@ -103,9 +187,31 @@ HXC::thread<void> controler_data_send_thread([](){
 });
 
 
+// 定义广播发送遥控器Mac地址建立通信函数
+void broadcast_mac(){
+    uint8_t broadcast_address[] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
+    uint8_t self_mac_address[6];
+    WiFi.macAddress(self_mac_address);
+    if(current_id == 0){
+        for(int i = 0;i<MAX_RETRY;i++){
+            esp_now_send_package("broadcast",self_mac_address,6);
+        }
+    }
+};
+
+
+//遥控器数据接收
+//接收数据类型
+struct CONTROLLER_DATA_R
+{
+    public:
+    
+};
+
+//接收遥控设备数据线程
+HXC::thread<void> controller_data_receive_thread([](){
 
 
 
-
-
+});
 #endif
