@@ -1,7 +1,9 @@
 #ifndef task_hpp
-#define task_hpP
+#define task_hpp
 
 #include <ESPNOW.hpp>
+#include <class.hpp>
+#include <objects.hpp>
 
 //遥控数据发送
 //发送的数据类型
